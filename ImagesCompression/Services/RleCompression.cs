@@ -13,7 +13,7 @@ namespace ImagesCompression.Services
 {
     class RleCompression : ICompression
     {
-        public CompressedFile CompressImage(byte[] sourceImage, string path)
+        public byte[] CompressImage(byte[] sourceImage, string path)
         {
             var image = new Bitmap(path);
 
@@ -53,12 +53,7 @@ namespace ImagesCompression.Services
 
             var compressionRatio = (double)BmpHeader.GetFileSizeFromHeader(sourceImage) / result.Count;
 
-            return new CompressedFile
-            {
-                File = result.ToArray(),
-                FileSize = result.Count,
-                CompressionRatio = compressionRatio
-            };
+            return result.ToArray();
         }
 
         private List<byte> compressColorList(List<byte> colorList)
@@ -86,8 +81,7 @@ namespace ImagesCompression.Services
             var rleHeader = new RleHeader(compressedImage);
 
             var image = new Bitmap(rleHeader.Width, rleHeader.Height, (PixelFormat)rleHeader.PixelFormat);
-            var image2 = new Bitmap(rleHeader.Width, rleHeader.Height, PixelFormat.Format1bppIndexed);
-            image2.SetPixel(1, 1, new Color());
+
             var red = new List<byte>(compressedImage.Skip(rleHeader.RedColorArrayAddress).Take(rleHeader.GreenColorArrayAddress - rleHeader.RedColorArrayAddress));
             var green = new List<byte>(compressedImage.Skip(rleHeader.GreenColorArrayAddress).Take(rleHeader.BlueColorArrayAddress - rleHeader.GreenColorArrayAddress));
             var blue = new List<byte>(compressedImage.Skip(rleHeader.BlueColorArrayAddress).Take(compressedImage.Length - rleHeader.BlueColorArrayAddress));
@@ -105,20 +99,20 @@ namespace ImagesCompression.Services
                     count++;
                 }
             }
-            var path = AppDomain.CurrentDomain.BaseDirectory + @"\decoded" + nameof(CompressionMethod.RLE) + ".bmp";
-            byte[] r = null;
+            //var path = AppDomain.CurrentDomain.BaseDirectory + @"\decoded" + nameof(CompressionMethod.RLE) + ".bmp";
+            byte[] imageArray = null;
             
             using (var stream = new MemoryStream())
             {
                 image.Save(stream, ImageFormat.Bmp);
-                r = stream.ToArray();
-                var file = File.Create(path);
-                image.Save(file, ImageFormat.Bmp);
-                //file.Write(r, 0, r.Length);
-                file.Dispose();
+                imageArray = stream.ToArray();
+                //var file = File.Create(path);
+                //image.Save(file, ImageFormat.Bmp);
+                ////file.Write(r, 0, r.Length);
+                //file.Dispose();
             }
             image.Dispose();
-            return r;
+            return imageArray;
         }
 
         private List<byte> DecodeColorLists(List<byte> colorList)

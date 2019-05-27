@@ -24,8 +24,19 @@ namespace ImagesCompression.ViewModels
         private byte[] _decodedFileBitMap;
         private int _sourceFileSize;
         private int _decodedFileSize;
-        private CompressedFile _compressionResult;
+        private byte[] _compressionResult;
         private double _compressionRatio;
+        private int _compressedFileSize;
+
+        public int CompressedFileSize
+        {
+            get => _compressedFileSize; 
+            set
+            {
+                _compressedFileSize = value;
+                OnPropertyChanged(nameof(CompressedFileSize));
+            }
+        }
 
         public byte[] DecodedFileBitMap
         {
@@ -43,6 +54,15 @@ namespace ImagesCompression.ViewModels
             {
                 _sourceFileBitMap = value;
                 OnPropertyChanged(nameof(SourceFileBitMap));
+            }
+        }
+        public double CompressionRatio
+        {
+            get => _compressionRatio;
+            set
+            {
+                _compressionRatio = value;
+                OnPropertyChanged(nameof(CompressionRatio));
             }
         }
         public string SourceFilePath
@@ -84,13 +104,14 @@ namespace ImagesCompression.ViewModels
                 OnPropertyChanged(nameof(DecodedFileSize));
             }
         }
-        public CompressedFile CompressionResult
+        public byte[] CompressionResult
         {
             get => _compressionResult;
             set
             {
                 _compressionResult = value;
-                //_compressionRatio = (double)_sourceFileSize
+                CompressedFileSize = CompressionResult.Count();
+                CompressionRatio = (double)_sourceFileSize / _compressionResult.Count();
                 OnPropertyChanged(nameof(CompressionResult));
             }
         }
@@ -106,12 +127,16 @@ namespace ImagesCompression.ViewModels
         }
         private void ResetPropertyValues()
         {
-            CompressionMethod = default;
-            SourceFileSize = default;
-            SourceFileBitMap = default;
-            DecodedFileSize = default;
-            DecodedFileBitMap = default;
-            CompressionResult = default;
+            if (_sourceFileBitMap != null)
+            {
+                CompressionMethod = default;
+                SourceFileSize = default;
+                SourceFileBitMap = default;
+                DecodedFileSize = default;
+                DecodedFileBitMap = default;
+                CompressionResult = default;
+                CompressionRatio = default;
+            }
         }
 
         private bool CanExecuteDecoding()
@@ -121,7 +146,7 @@ namespace ImagesCompression.ViewModels
 
         private void ExecuteDecoding()
         {
-            DecodedFileBitMap = _compressionService.DecompressImage(_compressionResult.File);
+            DecodedFileBitMap = _compressionService.DecompressImage(_compressionResult);
             DecodedFileSize = BmpHeader.GetFileSizeFromHeader(_decodedFileBitMap);
         }
 

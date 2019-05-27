@@ -9,7 +9,7 @@ namespace ImagesCompression.Services
 {
     interface ICompression
     {
-        CompressedFile CompressImage(byte[] sourceImage, string path);
+        byte[] CompressImage(byte[] sourceImage, string path);
         byte[] DecompressImage(byte[] compressedImage);
     }
 }
