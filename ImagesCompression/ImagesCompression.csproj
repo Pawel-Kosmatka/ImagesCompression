@@ -60,11 +60,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Core\CommandHandler.cs" />
-    <Compile Include="Models\CompressedFile.cs" />
     <Compile Include="Services\BmpHeader.cs" />
     <Compile Include="Services\ICompression.cs" />
     <Compile Include="Services\RleCompression.cs" />
-    <Compile Include="Services\RleFile.cs" />
     <Compile Include="Services\RleHeader.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Page Include="MainWindow.xaml">

@@ -1,11 +1,4 @@
-﻿using ImagesCompression.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ImagesCompression.Services
+﻿namespace ImagesCompression.Services
 {
     interface ICompression
     {

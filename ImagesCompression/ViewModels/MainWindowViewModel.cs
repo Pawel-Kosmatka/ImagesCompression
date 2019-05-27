@@ -1,17 +1,11 @@
-﻿using System;
+﻿using ImagesCompression.Core;
+using ImagesCompression.Services;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using ImagesCompression.Models;
-using System.Runtime.InteropServices;
 using System.Windows.Input;
-using ImagesCompression.Core;
-using System.Windows;
-using ImagesCompression.Services;
-using System.Drawing;
 
 namespace ImagesCompression.ViewModels
 {
@@ -22,18 +16,28 @@ namespace ImagesCompression.ViewModels
         private string _compressionMethod;
         private byte[] _sourceFileBitMap;
         private byte[] _decodedFileBitMap;
-        private int _sourceFileSize;
-        private int _decodedFileSize;
+        private double _sourceFileSize;
+        private double _decodedFileSize;
         private byte[] _compressionResult;
         private double _compressionRatio;
-        private int _compressedFileSize;
+        private double _compressedFileSize;
+        private bool _isMenuEnabled = true;
 
-        public int CompressedFileSize
+        public bool IsMenuEnabled
         {
-            get => _compressedFileSize; 
+            get => _isMenuEnabled;
             set
             {
-                _compressedFileSize = value;
+                _isMenuEnabled = value;
+                OnPropertyChanged(nameof(IsMenuEnabled));
+            }
+        }
+        public double CompressedFileSize
+        {
+            get => _compressedFileSize;
+            set
+            {
+                _compressedFileSize = value / 1048576;
                 OnPropertyChanged(nameof(CompressedFileSize));
             }
         }
@@ -86,18 +90,18 @@ namespace ImagesCompression.ViewModels
                 OnPropertyChanged(nameof(CompressionMethod));
             }
         }
-        public int SourceFileSize
+        public double SourceFileSize
         {
-            get => _sourceFileSize;
+            get => _sourceFileSize / 1048576;
             set
             {
                 _sourceFileSize = value;
                 OnPropertyChanged(nameof(SourceFileSize));
             }
         }
-        public int DecodedFileSize
+        public double DecodedFileSize
         {
-            get => _decodedFileSize;
+            get => _decodedFileSize / 1048576;
             set
             {
                 _decodedFileSize = value;
@@ -110,8 +114,11 @@ namespace ImagesCompression.ViewModels
             set
             {
                 _compressionResult = value;
-                CompressedFileSize = CompressionResult.Count();
-                CompressionRatio = (double)_sourceFileSize / _compressionResult.Count();
+                if (_compressionResult != null)
+                {
+                    CompressedFileSize = CompressionResult.Count();
+                    CompressionRatio = (double)_sourceFileSize / _compressionResult.Count();
+                }
                 OnPropertyChanged(nameof(CompressionResult));
             }
         }
@@ -122,21 +129,19 @@ namespace ImagesCompression.ViewModels
 
         public MainWindowViewModel()
         {
-            StartCompression = new CommandHandler(ExecuteCompression, CanExecuteCompression);
-            DecodeFile = new CommandHandler(ExecuteDecoding, CanExecuteDecoding);
+            StartCompression = new CommandHandler(ExecuteCompressionAsync, CanExecuteCompression);
+            DecodeFile = new CommandHandler(ExecuteDecodingAsync, CanExecuteDecoding);
         }
         private void ResetPropertyValues()
         {
-            if (_sourceFileBitMap != null)
-            {
-                CompressionMethod = default;
-                SourceFileSize = default;
-                SourceFileBitMap = default;
-                DecodedFileSize = default;
-                DecodedFileBitMap = default;
-                CompressionResult = default;
-                CompressionRatio = default;
-            }
+            CompressionMethod = default;
+            SourceFileSize = default;
+            SourceFileBitMap = default;
+            DecodedFileSize = default;
+            DecodedFileBitMap = default;
+            CompressionResult = default;
+            CompressionRatio = default;
+            CompressedFileSize = default;
         }
 
         private bool CanExecuteDecoding()
@@ -144,10 +149,12 @@ namespace ImagesCompression.ViewModels
             return _compressionResult != null && _compressionMethod != null;
         }
 
-        private void ExecuteDecoding()
+        private async Task ExecuteDecodingAsync()
         {
-            DecodedFileBitMap = _compressionService.DecompressImage(_compressionResult);
+            IsMenuEnabled = false;
+            DecodedFileBitMap = await Task.Run(() => _compressionService.DecompressImage(_compressionResult));
             DecodedFileSize = BmpHeader.GetFileSizeFromHeader(_decodedFileBitMap);
+            IsMenuEnabled = true;
         }
 
         private bool CanExecuteCompression()
@@ -155,14 +162,17 @@ namespace ImagesCompression.ViewModels
             return _sourceFileBitMap != null && _compressionMethod != null;
         }
 
-        private void ExecuteCompression()
+        private async Task ExecuteCompressionAsync()
         {
             if (_compressionMethod == Models.CompressionMethod.RLE)
             {
                 _compressionService = new RleCompression();
-
-                CompressionResult = _compressionService.CompressImage(SourceFileBitMap, SourceFilePath);
             };
+            IsMenuEnabled = false;
+            CompressionResult = await Task.Run(() => _compressionService.CompressImage(SourceFileBitMap, SourceFilePath));
+            var decodeFile = DecodeFile as CommandHandler;
+            decodeFile.RaiseCanExecuteChanged();
+            IsMenuEnabled = true;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
