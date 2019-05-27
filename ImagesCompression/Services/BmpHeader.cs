@@ -6,25 +6,22 @@ using System.Threading.Tasks;
 
 namespace ImagesCompression.Services
 {
-    class BmpHeaderService
+    class BmpHeader
     {
         private static readonly byte SizeOfFileAdress = 2;
-        private static readonly byte SizeOfFileSize = 4;
         private static readonly byte PixelArrayAddress = 10;
-        private static readonly byte PixelArrayAddresSize = 4;
         private static readonly byte CompressionMethodTypeAddress = 30;
-        private static readonly byte CompressionMethodTypeSize = 4;
         private static readonly byte RawImageSizeAddress = 34;
-        private static readonly byte RawImageSizeSize = 4;
+        private static readonly byte PropertyByteSize = 4;
 
         public static int GetImageArrayAddress(byte[] bmpArray)
         {
-            return ByteArrayToInt(bmpArray, PixelArrayAddress, PixelArrayAddresSize);
+            return ByteArrayToInt(bmpArray, PixelArrayAddress, PropertyByteSize);
         }
 
         public static int GetFileSizeFromHeader(byte[] bmpArray)
         {
-            return ByteArrayToInt(bmpArray, SizeOfFileAdress, SizeOfFileSize);
+            return ByteArrayToInt(bmpArray, SizeOfFileAdress, PropertyByteSize);
         }
 
         public static void SetFileSizeInHeader(byte[] bmpArray, int size) 
@@ -38,7 +35,7 @@ namespace ImagesCompression.Services
 
         public static int GetRawImageSizeFromHeader(byte[] bmpArray)
         {
-            return ByteArrayToInt(bmpArray, RawImageSizeAddress, RawImageSizeSize);
+            return ByteArrayToInt(bmpArray, RawImageSizeAddress, PropertyByteSize);
         }
 
         public static void SetRawImageSizeInHeader(byte[] bmpArray, int size)

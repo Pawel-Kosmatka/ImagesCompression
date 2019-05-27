@@ -11,19 +11,21 @@ using System.Windows.Input;
 using ImagesCompression.Core;
 using System.Windows;
 using ImagesCompression.Services;
+using System.Drawing;
 
 namespace ImagesCompression.ViewModels
 {
     class MainWindowViewModel : INotifyPropertyChanged
     {
-        private ICompressionService _compressionService;
+        private ICompression _compressionService;
         private string _sourceFilePath;
         private string _compressionMethod;
-        private byte[] _sourceFileBitMap = null;
-        private byte[] _decodedFileBitMap = null;
+        private byte[] _sourceFileBitMap;
+        private byte[] _decodedFileBitMap;
         private int _sourceFileSize;
         private int _decodedFileSize;
         private CompressedFile _compressionResult;
+        private double _compressionRatio;
 
         public byte[] DecodedFileBitMap
         {
@@ -36,7 +38,8 @@ namespace ImagesCompression.ViewModels
         }
         public byte[] SourceFileBitMap
         {
-            get => _sourceFileBitMap; set
+            get => _sourceFileBitMap;
+            set
             {
                 _sourceFileBitMap = value;
                 OnPropertyChanged(nameof(SourceFileBitMap));
@@ -47,9 +50,10 @@ namespace ImagesCompression.ViewModels
             get => _sourceFilePath;
             set
             {
+                ResetPropertyValues();
                 _sourceFilePath = value;
                 SourceFileBitMap = File.ReadAllBytes(_sourceFilePath);
-                SourceFileSize = BmpHeaderService.GetFileSizeFromHeader(_sourceFileBitMap);
+                SourceFileSize = BmpHeader.GetFileSizeFromHeader(_sourceFileBitMap);
                 OnPropertyChanged(nameof(SourceFilePath));
             }
         }
@@ -86,6 +90,7 @@ namespace ImagesCompression.ViewModels
             set
             {
                 _compressionResult = value;
+                //_compressionRatio = (double)_sourceFileSize
                 OnPropertyChanged(nameof(CompressionResult));
             }
         }
@@ -99,6 +104,15 @@ namespace ImagesCompression.ViewModels
             StartCompression = new CommandHandler(ExecuteCompression, CanExecuteCompression);
             DecodeFile = new CommandHandler(ExecuteDecoding, CanExecuteDecoding);
         }
+        private void ResetPropertyValues()
+        {
+            CompressionMethod = default;
+            SourceFileSize = default;
+            SourceFileBitMap = default;
+            DecodedFileSize = default;
+            DecodedFileBitMap = default;
+            CompressionResult = default;
+        }
 
         private bool CanExecuteDecoding()
         {
@@ -107,8 +121,8 @@ namespace ImagesCompression.ViewModels
 
         private void ExecuteDecoding()
         {
-            DecodedFileBitMap = _compressionService.DecompressImage(_compressionResult.FileBitMap);
-            DecodedFileSize = BmpHeaderService.GetFileSizeFromHeader(_decodedFileBitMap);
+            DecodedFileBitMap = _compressionService.DecompressImage(_compressionResult.File);
+            DecodedFileSize = BmpHeader.GetFileSizeFromHeader(_decodedFileBitMap);
         }
 
         private bool CanExecuteCompression()
@@ -120,9 +134,9 @@ namespace ImagesCompression.ViewModels
         {
             if (_compressionMethod == Models.CompressionMethod.RLE)
             {
-                _compressionService = new RleCompressionService();
+                _compressionService = new RleCompression();
 
-                CompressionResult = _compressionService.CompressImage(SourceFileBitMap);
+                CompressionResult = _compressionService.CompressImage(SourceFileBitMap, SourceFilePath);
             };
         }
 

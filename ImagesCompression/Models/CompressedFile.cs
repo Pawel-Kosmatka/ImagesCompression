@@ -8,7 +8,7 @@ namespace ImagesCompression.Models
 {
     class CompressedFile
     {
-        public byte[] FileBitMap { get; set; }
+        public byte[] File { get; set; }
         public int FileSize { get; set; }
         public double CompressionRatio { get; set; }
     }

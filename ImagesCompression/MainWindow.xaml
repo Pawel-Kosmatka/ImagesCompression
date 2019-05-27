@@ -32,7 +32,7 @@
             <Label Content="Compression method:" Margin="0,10,0,0"/>
             <ComboBox Margin="10,0,10,10" MinWidth="100"  
                       ItemsSource="{Binding CompressionMethods, Mode=OneWay}" 
-                      SelectedItem="{Binding CompressionMethod, Mode=OneWayToSource}"/>
+                      SelectedItem="{Binding CompressionMethod, Mode=TwoWay}"/>
             <Button Content="Start compression" Margin="10,30" Command="{Binding StartCompression}"/>
             <Button Content="Decode file" Margin="10,20" Command="{Binding DecodeFile}"/>
             <GroupBox Header="Compression results" BorderBrush="SkyBlue" Margin="0,20,0,0" BorderThickness="2">

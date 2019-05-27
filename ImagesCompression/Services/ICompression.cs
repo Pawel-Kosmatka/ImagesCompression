@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace ImagesCompression.Services
 {
-    interface ICompressionService
+    interface ICompression
     {
-        CompressedFile CompressImage(byte[] sourceImage);
+        CompressedFile CompressImage(byte[] sourceImage, string path);
         byte[] DecompressImage(byte[] compressedImage);
     }
 }
