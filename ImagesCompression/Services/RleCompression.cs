@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using ImagesCompression.Models;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -46,7 +48,7 @@ namespace ImagesCompression.Services
             result.AddRange(compressedGreen);
             result.AddRange(compressedBlue);
 
-            var compressionRatio = (double)BmpHeader.GetFileSizeFromHeader(sourceImage) / result.Count;
+            SaveToFile(@"\encoded" + nameof(CompressionMethod.RLE), result);
 
             return result.ToArray();
         }
@@ -94,19 +96,18 @@ namespace ImagesCompression.Services
                     count++;
                 }
             }
-            //var path = AppDomain.CurrentDomain.BaseDirectory + @"\decoded" + nameof(CompressionMethod.RLE) + ".bmp";
+            
             byte[] imageArray = null;
             
             using (var stream = new MemoryStream())
             {
                 image.Save(stream, ImageFormat.Bmp);
                 imageArray = stream.ToArray();
-                //var file = File.Create(path);
-                //image.Save(file, ImageFormat.Bmp);
-                ////file.Write(r, 0, r.Length);
-                //file.Dispose();
             }
             image.Dispose();
+
+            SaveToFile(@"\decoded" + nameof(CompressionMethod.RLE) + ".bmp", imageArray);
+
             return imageArray;
         }
 
@@ -119,6 +120,16 @@ namespace ImagesCompression.Services
                 decodedList.AddRange(Enumerable.Repeat(colorList[i + 1], colorList[i]));
             }
             return decodedList;
+        }
+
+        private void SaveToFile(string fileName, IEnumerable<byte> source)
+        {
+            var array = source.ToArray();
+            var path = AppDomain.CurrentDomain.BaseDirectory + fileName;
+            using (var file = File.Create(path))
+            {
+                file.Write(array, 0, array.Length);
+            }
         }
     }
 }

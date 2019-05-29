@@ -170,8 +170,10 @@ namespace ImagesCompression.ViewModels
             };
             IsMenuEnabled = false;
             CompressionResult = await Task.Run(() => _compressionService.CompressImage(SourceFileBitMap, SourceFilePath));
+
             var decodeFile = DecodeFile as CommandHandler;
             decodeFile.RaiseCanExecuteChanged();
+
             IsMenuEnabled = true;
         }
 

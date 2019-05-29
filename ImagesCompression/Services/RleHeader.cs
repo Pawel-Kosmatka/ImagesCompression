@@ -27,32 +27,29 @@ namespace ImagesCompression.Services
         public byte[] Header { get => _header; }
         public int SizeOfFile
         {
-            get { return ByteArrayToInt(SizeOfFileAdress, PropertyByteSize); }
-            set { IntToByteInHeader(value + _header.Length, SizeOfFileAdress); }
+            get => ByteArrayToInt(SizeOfFileAdress, PropertyByteSize);
+            set => IntToByteInHeader(value + _header.Length, SizeOfFileAdress);
         }
 
         public int PixelFormat
         {
-            get { return ByteArrayToInt(PixelFormatAdress, PropertyByteSize); }
-            set { IntToByteInHeader(value, PixelFormatAdress); }
+            get => ByteArrayToInt(PixelFormatAdress, PropertyByteSize);
+            set => IntToByteInHeader(value, PixelFormatAdress);
         }
 
         public int Width
         {
-            get { return ByteArrayToInt(WidthAdress, PropertyByteSize); }
-            set { IntToByteInHeader(value, WidthAdress); }
+            get => ByteArrayToInt(WidthAdress, PropertyByteSize);
+            set => IntToByteInHeader(value, WidthAdress);
         }
 
         public int Height
         {
-            get { return ByteArrayToInt(HeightAdress, PropertyByteSize); }
-            set { IntToByteInHeader(value, HeightAdress); }
+            get => ByteArrayToInt(HeightAdress, PropertyByteSize);
+            set => IntToByteInHeader(value, HeightAdress);
         }
 
-        public int RedColorArrayAddress
-        {
-            get { return ByteArrayToInt(RedArrayAddress, PropertyByteSize); }
-        }
+        public int RedColorArrayAddress => ByteArrayToInt(RedArrayAddress, PropertyByteSize);
 
         public int GreenColorArrayAddress
         {
